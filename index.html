@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYLVIA LING - 从人工到智能</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'bg-deep': '#050505',
+                        'bg-charcoal': '#0D0D0D',
+                        'now': '#C4A77D',
+                        'then': '#4A5568',
+                        'future': '#F5F5F5',
+                        'text-muted': '#737373',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+        }
+        .text-gradient-now {
+            background: linear-gradient(to right, #C4A77D, #E5D5B8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1A1A1A;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #C4A77D;
+        }
+        html {
+            scroll-behavior: smooth;
+        }
+        body {
+            background-color: #050505;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav id="navbar" class="fixed top-0 left-0 w-full z-50 transition-all duration-500 bg-transparent py-6">
+        <div id="scroll-progress" class="absolute bottom-0 left-0 h-[2px] bg-now z-50 transition-all duration-100" style="width: 0%"></div>
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
+            <a href="#" class="text-2xl font-black tracking-tighter group flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-now flex items-center justify-center group-hover:rotate-12 transition-transform">
+                    <i data-lucide="zap" class="text-bg-deep w-4 h-4"></i>
+                </div>
+                SYLVIA<span class="text-now">.</span>LING
+            </a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#evolution" class="text-sm font-medium text-text-muted hover:text-white transition-colors relative group">
+                    进化史
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-now transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#work" class="text-sm font-medium text-text-muted hover:text-white transition-colors relative group">
+                    项目集
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-now transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#about" class="text-sm font-medium text-text-muted hover:text-white transition-colors relative group">
+                    关于
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-now transition-all group-hover:w-full"></span>
+                </a>
+                <a href="#contact" class="px-6 py-2.5 bg-now text-bg-deep text-sm font-bold rounded-full hover:scale-105 hover:shadow-[0_0_20px_rgba(196,167,125,0.4)] transition-all">
+                    联系我
+                </a>
+            </div>
+            <button id="mobile-menu-btn" class="md:hidden text-white w-10 h-10 flex items-center justify-center bg-white/5 rounded-lg">
+                <i data-lucide="menu" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden absolute top-full left-0 w-full bg-bg-charcoal border-b border-white/10 overflow-hidden md:hidden">
+            <div class="p-8 flex flex-col gap-6">
+                <a href="#evolution" class="text-2xl font-black tracking-tight hover:text-now transition-colors mobile-link">进化史</a>
+                <a href="#work" class="text-2xl font-black tracking-tight hover:text-now transition-colors mobile-link">项目集</a>
+                <a href="#about" class="text-2xl font-black tracking-tight hover:text-now transition-colors mobile-link">关于</a>
+                <a href="#contact" class="w-full py-4 bg-now text-bg-deep text-center font-bold rounded-2xl shadow-xl mobile-link">联系我</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero Section -->
+        <section class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+            <div id="mouse-follower" class="fixed top-0 left-0 w-[600px] h-[600px] bg-now/5 blur-[120px] rounded-full pointer-events-none z-0"></div>
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" alt="Abstract background" class="w-full h-full object-cover opacity-20">
+                <div class="absolute inset-0 bg-gradient-to-b from-bg-deep/50 via-bg-deep to-bg-deep"></div>
+            </div>
+            <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-20 items-center relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6">
+                        <span class="w-2 h-2 bg-now rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-bold uppercase tracking-widest text-text-muted">Evolution of a Marketer</span>
+                    </div>
+                    <h1 class="text-6xl md:text-8xl font-black tracking-tighter leading-[0.9] mb-8">
+                        从人工到<br>
+                        <span class="text-gradient-now">智能</span>
+                    </h1>
+                    <p class="text-xl text-text-muted max-w-md mb-10 leading-relaxed">
+                        Hourglass、YSL、Dior教会我业务，<br>
+                        AI赋予我效率杠杆。
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a href="#work" class="px-8 py-4 bg-now text-bg-deep font-bold rounded-xl flex items-center gap-2 hover:scale-105 transition-transform">
+                            查看进化史 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                        </a>
+                        <a href="#about" class="px-8 py-4 bg-white/5 border border-white/10 font-bold rounded-xl hover:bg-white/10 transition-colors">
+                            关于我
+                        </a>
+                    </div>
+                </div>
+                <div class="relative h-[600px] hidden md:block">
+                    <div class="absolute inset-0 flex items-center justify-center">
+                        <div class="w-[1px] h-full bg-gradient-to-b from-then via-now to-future opacity-30"></div>
+                    </div>
+                    <div class="space-y-24 relative" id="hero-stages">
+                        <!-- Stages will be injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Evolution Section -->
+        <section id="evolution" class="py-32 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-1/3 h-full opacity-5 pointer-events-none">
+                <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=2672&auto=format&fit=crop" alt="Tech background" class="w-full h-full object-cover">
+            </div>
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="mb-20">
+                    <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-4">能力跃迁</h2>
+                    <p class="text-text-muted">THEN (过去) → NOW (现在) → FUTURE (未来)</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8" id="evolution-grid">
+                    <!-- Grid items will be injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Work Section -->
+        <section id="work" class="py-32 bg-bg-charcoal/50 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 relative z-10">
+                <div class="mb-24 flex flex-col items-center text-center">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-full mb-8">
+                        <span class="w-2 h-2 bg-now rounded-full animate-pulse"></span>
+                        <span class="text-[10px] font-black uppercase tracking-[0.3em] text-now">Evolution Showcase</span>
+                    </div>
+                    <h2 class="text-5xl md:text-7xl font-black tracking-tighter mb-8">项目进化集</h2>
+                    <p class="text-xl text-text-muted max-w-2xl mb-16 leading-relaxed">
+                        每一个项目都是一次从人工到智能的思考优化，见证从“明白深耕”到“效率杠杆”的跃迁。
+                    </p>
+                    <div class="relative group/global-toggle">
+                        <div class="relative flex items-center bg-bg-deep p-2 rounded-[32px] border border-white/10 shadow-2xl">
+                            <div id="global-toggle-bg" class="absolute inset-y-2 rounded-[24px] bg-then shadow-[0_0_20px_rgba(74,85,104,0.4)] transition-all duration-500" style="left: 8px; width: calc(50% - 9px);"></div>
+                            <button id="global-toggle-then" class="relative z-10 px-12 py-5 rounded-[24px] text-sm font-black tracking-widest transition-all duration-500 flex items-center gap-3 text-white">
+                                <i data-lucide="clock" class="w-5 h-5"></i> 全局过去
+                            </button>
+                            <button id="global-toggle-now" class="relative z-10 px-12 py-5 rounded-[24px] text-sm font-black tracking-widest transition-all duration-500 flex items-center gap-3 text-text-muted hover:text-white">
+                                <i data-lucide="zap" class="w-5 h-5"></i> 全局现在
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="space-y-40" id="work-cases-container">
+                    <!-- Work cases will be injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-32 relative overflow-hidden">
+            <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-12 gap-20">
+                <div class="md:col-span-5">
+                    <div class="sticky top-32">
+                        <div class="mb-12 rounded-2xl overflow-hidden h-80 border border-white/10 shadow-2xl group/img relative">
+                            <img src="/me.JPG" alt="Sylvia Ling" class="w-full h-full object-cover transition-all duration-700 group-hover:scale-110">
+                            <div class="absolute inset-0 bg-gradient-to-t from-bg-deep/60 to-transparent"></div>
+                            <div class="absolute bottom-6 left-6">
+                                <h3 class="text-2xl font-black text-white">Sylvia Ling</h3>
+                                <p class="text-now text-xs font-mono font-bold uppercase tracking-widest">AI-Driven Marketer</p>
+                            </div>
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-black tracking-tight mb-12">关于我</h2>
+                        <div class="space-y-12 relative">
+                            <div class="absolute left-[23px] top-0 w-[1px] h-full bg-white/10"></div>
+                            <div class="flex gap-8 relative">
+                                <div class="w-12 h-12 rounded-full bg-then flex items-center justify-center z-10 border-4 border-bg-deep">
+                                    <i data-lucide="clock" class="text-white w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-then font-bold mb-1 block">2024</span>
+                                    <h4 class="text-lg font-bold mb-1">THEN</h4>
+                                    <p class="text-sm text-text-muted">手工时代 · 明白深耕</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-8 relative">
+                                <div class="w-12 h-12 rounded-full bg-now flex items-center justify-center z-10 border-4 border-bg-deep">
+                                    <i data-lucide="zap" class="text-bg-deep w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-now font-bold mb-1 block">2025</span>
+                                    <h4 class="text-lg font-bold mb-1">NOW</h4>
+                                    <p class="text-sm text-text-muted">AI重构 · 效率杠杆</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-8 relative">
+                                <div class="w-12 h-12 rounded-full bg-future flex items-center justify-center z-10 border-4 border-bg-deep">
+                                    <i data-lucide="arrow-right" class="text-bg-deep w-5 h-5"></i>
+                                </div>
+                                <div>
+                                    <span class="text-xs font-mono text-future font-bold mb-1 block">FUTURE</span>
+                                    <h4 class="text-lg font-bold mb-1">持续进化</h4>
+                                    <p class="text-sm text-text-muted">寻找下一个场景</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="contact" class="mt-20 pt-12 border-t border-white/10">
+                            <div class="grid grid-cols-2 gap-4">
+                                <button onclick="copyToClipboard('im.sylvia@outlook.com', 'email')" class="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors relative group">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <i data-lucide="mail" class="text-now group-hover:scale-110 transition-transform w-6 h-6"></i>
+                                        <span class="text-[10px] font-bold uppercase tracking-widest opacity-50">Email</span>
+                                        <span id="email-label" class="text-xs font-bold truncate max-w-full">im.sylvia@outlook.com</span>
+                                    </div>
+                                </button>
+                                <button onclick="copyToClipboard('19533296523', 'phone')" class="p-6 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors relative group">
+                                    <div class="flex flex-col items-center gap-3">
+                                        <i data-lucide="phone" class="text-now group-hover:scale-110 transition-transform w-6 h-6"></i>
+                                        <span class="text-[10px] font-black uppercase tracking-widest opacity-50">Phone</span>
+                                        <span id="phone-label" class="text-xs font-bold">19533296523</span>
+                                    </div>
+                                </button>
+                            </div>
+                            <div class="mt-4 p-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-lg bg-now/10 flex items-center justify-center text-now">
+                                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold uppercase tracking-widest opacity-50">Location</p>
+                                    <span class="text-sm font-medium">上海</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-7 space-y-16">
+                    <div>
+                        <h3 class="text-3xl font-black mb-10 tracking-tight">为什么会产生这些思考？</h3>
+                        <div class="space-y-10 text-text-muted leading-relaxed">
+                            <div class="relative pl-8 border-l-2 border-then/30">
+                                <span class="text-then font-black uppercase tracking-widest block mb-3 text-xs">第一幕：深耕业务的起点</span>
+                                <p class="text-lg text-white/80">
+                                    在 Hourglass、YSL、Dior 的实习经历中，我不仅是执行者，更是观察者。我参与了 2025 限定彩盘的中国区首发，管理过 30+ 场 KOL 投放全流程。这些高强度的实战让我深刻理解：**好内容是有逻辑的，品牌调性是需要被精确守护的。**
+                                </p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-white/10">
+                                <span class="text-white font-black uppercase tracking-widest block mb-3 text-xs">第二幕：效率的“天花板”</span>
+                                <p class="text-lg text-white/80">
+                                    当每天需要审核 60+ 条脚本、整理 16 份数据报告时，我发现人工的上限非常明显。重复性的劳动占用了我 80% 的精力，而真正的策略思考却只能在加班时进行。**我意识到，传统的 Marketing 工作流急需一场效率革命。**
+                                </p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-now/30">
+                                <span class="text-now font-black uppercase tracking-widest block mb-3 text-xs">第三幕：AI 驱动的未来</span>
+                                <p class="text-lg text-white/80">
+                                    我开始尝试将业务逻辑转化为 Prompt。通过构建 KOL 审核模型、竞品监测引擎和 SQL 智能助手，我成功将单条脚本审核时间从 30min 缩短至 5min。**AI 不是替代品，而是我的“超级外脑”，让我能站在更高的维度审视业务。**
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-10 bg-now/5 border border-now/20 rounded-3xl relative overflow-hidden group">
+                        <div class="absolute top-0 right-0 p-8 opacity-5 group-hover:scale-110 transition-transform duration-700">
+                            <i data-lucide="sparkles" class="text-now w-32 h-32"></i>
+                        </div>
+                        <h4 class="text-now font-black uppercase tracking-[0.2em] text-[10px] mb-6">核心认知 / Core Insight</h4>
+                        <p class="text-2xl text-white font-bold leading-tight relative z-10">
+                            "我不需要 AI 替代我，我需要 AI 放大我的思考。懂业务的人 + AI 工具，才是完整的竞争力。"
+                        </p>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-8">
+                        <div class="glass-card p-8 border-white/5">
+                            <h4 class="text-[10px] font-black uppercase tracking-widest text-text-muted mb-8">能力图谱 / Skill Radar</h4>
+                            <div class="h-64 w-full">
+                                <canvas id="skillRadarChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-8">
+                            <div class="glass-card p-8 border-white/5 flex-1">
+                                <h4 class="text-[10px] font-black uppercase tracking-widest text-text-muted mb-6">教育背景</h4>
+                                <div>
+                                    <h5 class="text-xl font-bold mb-1">上海商学院</h5>
+                                    <p class="text-sm text-text-muted mb-6">商务经济学 | 2026 届本科</p>
+                                    <div class="space-y-4">
+                                        <div>
+                                            <p class="text-[10px] font-bold text-now uppercase mb-1">相关课程</p>
+                                            <p class="text-xs text-text-muted">经济学、市场营销、商业数据分析</p>
+                                        </div>
+                                        <div>
+                                            <p class="text-[10px] font-bold text-now uppercase mb-1">专业技能</p>
+                                            <p class="text-xs text-text-muted">SQL | Power BI | AI Prompting | LLM Workflow | 雅思 6.5 | PS</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-20 border-t border-white/10 text-center relative">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col items-center">
+            <div class="mb-10 flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-now flex items-center justify-center">
+                    <i data-lucide="zap" class="text-bg-deep w-5 h-5"></i>
+                </div>
+                <span class="text-xl font-black tracking-tighter">SYLVIA LING</span>
+            </div>
+            <div class="flex gap-8 mb-12">
+                <a href="#evolution" class="text-sm text-text-muted hover:text-white transition-colors">进化史</a>
+                <a href="#work" class="text-sm text-text-muted hover:text-white transition-colors">项目集</a>
+                <a href="#about" class="text-sm text-text-muted hover:text-white transition-colors">关于我</a>
+            </div>
+            <p class="text-xs text-text-muted mb-4">
+                © <span id="current-year"></span> SYLVIA LING. Built with AI & Passion.
+            </p>
+            <p class="text-[10px] text-text-muted uppercase tracking-widest opacity-30">
+                Crafted for the future of marketing
+            </p>
+        </div>
+        <button id="back-to-top" class="hidden fixed bottom-10 right-10 w-14 h-14 bg-now text-bg-deep rounded-2xl shadow-2xl flex items-center justify-center hover:scale-110 transition-transform z-50">
+            <i data-lucide="chevron-up" class="w-6 h-6"></i>
+        </button>
+    </footer>
+
+    <script>
+        // --- Data ---
+        const EVOLUTION_STAGES = [
+            { id: 'THEN', year: '2024', title: '人工时代', subtitle: '在Hourglass、YSL、Dior，我学会了用人工精度打磨内容', color: '#4A5568', tags: ['KOL全流程', 'SQL数据分析', '竞品研究', '线下活动', '新闻稿本地化', '内容优化'] },
+            { id: 'NOW', year: '2025', title: 'AI重构', subtitle: '用AI重构每一个重复环节，把省下的时间还给策略与创意', color: '#C4A77D', tags: ['ChatGPT', 'Claude', 'SQL', 'Power BI', 'Python', 'Automation'] },
+            { id: 'FUTURE', year: 'FUTURE', title: '持续进化', subtitle: '寻找下一个值得被AI优化的业务场景', color: '#F5F5F5', tags: ['AI视频生成', '智能用户分层', '自动化投放', '多Agent协作'] }
+        ];
+
+        const WORK_CASES = [
+            {
+                id: 'kol-audit',
+                title: 'KOL内容审核系统',
+                subtitle: '从30分钟/条到5分钟/条的进化',
+                then: {
+                    time: '2024.09 - 2024.12',
+                    location: 'HOURGLASS · Marketing',
+                    scenario: '2025限定彩盘中国市场种草',
+                    workflow: ['理解核心卖点，沟通产品brief', '达人提交脚本，微信/邮件接收', '逐条阅读，标记问题', '撰写修改建议，反馈给达人', '等待修改，再次确认', '最终审核，确认上线'],
+                    painPoints: ['标准依赖个人经验，难以统一传承', '高频重复劳动，策略思考时间被挤压', '达人反复修改，沟通成本高'],
+                    insight: '懂业务——知道什么是好内容，知道平台调性，知道用户痛点。这为后来的AI重构打下了基础。',
+                    image: '/hourglass.jpg'
+                },
+                now: {
+                    time: '2025 重构方案',
+                    logic: '基于Hourglass经验，用AI重构审核流程',
+                    workflow: ['批量导入脚本', 'AI自动评分', '人工复核低分内容', '输出优化建议'],
+                    architecture: {
+                        input: ['达人原始脚本', '产品核心卖点清单', '平台调性要求'],
+                        process: ['5维度评估算法', '自然语言理解', '结构化输出'],
+                        output: ['总体评分', '分维度雷达图', '具体优化建议', '优先级标记']
+                    },
+                    innovations: [
+                        { title: '评分维度标准化', content: '卖点覆盖率30% | 平台适配度25% | 情感真诚度20% | 互动引导力15% | 合规安全度10%' },
+                        { title: 'Prompt工程', content: '角色设定 + 任务描述 + 输入格式 + 输出规范，让AI输出稳定可预期' }
+                    ],
+                    efficiency: { then: '30分钟/条', now: '5分钟/条' },
+                    tools: ['ChatGPT API', 'Google Sheets', 'Power BI'],
+                    insight: 'AI不是万能，只有知道审核的痛点在哪，才能设计出有效的AI协作流程。'
+                }
+            },
+            {
+                id: 'comp-monitor',
+                title: '竞品监测引擎',
+                subtitle: '从手动整理到AI实时洞察',
+                then: {
+                    time: '2024.09 - 2024.12',
+                    location: 'HOURGLASS · Marketing',
+                    scenario: '每月输出竞品与内容趋势报告',
+                    workflow: ['手动浏览小红书、抖音，截图保存爆款笔记', 'Excel记录：标题、封面、互动数据、内容结构', 'PPT整理分析，提炼可复用规律'],
+                    painPoints: ['手动采集，覆盖面有限', '个人记忆，难以传承', '报告制作，重复排版'],
+                    insight: '这些经历让我意识到：很多时间被重复劳动吃掉，策略思考被挤压。',
+                    image: '/com.JPG'
+                },
+                now: {
+                    time: '2025 重构方案',
+                    logic: '从手动监测到AI引擎',
+                    workflow: ['数据采集', 'AI分析', '洞察生成', '自动报告'],
+                    architecture: {
+                        input: ['八爪鱼爬虫/平台API', '热门笔记字段'],
+                        process: ['标题公式提取', '内容结构拆解', '趋势预警'],
+                        output: ['Canva自动排版', 'Power BI Dashboard', '邮件定时推送']
+                    },
+                    innovations: [
+                        { title: '标题公式提取', content: '从100个高互动标题中提取5大可复用结构' },
+                        { title: '趋势预警', content: '本月vs上月关键词频次，热度上升/下降TOP10' }
+                    ],
+                    efficiency: { then: '8小时/周', now: '30分钟/周' },
+                    tools: ['八爪鱼', 'ChatGPT', 'Canva', 'Power BI'],
+                    insight: 'AI不是替代我的行业理解，而是把我从数据采集解放出来，专注洞察提炼。'
+                }
+            }
+        ];
+
+        // --- Initialization ---
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initNavbar();
+            initHero();
+            initEvolution();
+            initWork();
+            initCharts();
+            initBackToTop();
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+        });
+
+        // --- Navbar ---
+        function initNavbar() {
+            const navbar = document.getElementById('navbar');
+            const progress = document.getElementById('scroll-progress');
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            window.addEventListener('scroll', () => {
+                const scrolled = window.scrollY > 50;
+                navbar.classList.toggle('bg-bg-deep/80', scrolled);
+                navbar.classList.toggle('backdrop-blur-lg', scrolled);
+                navbar.classList.toggle('border-b', scrolled);
+                navbar.classList.toggle('border-white/10', scrolled);
+                navbar.classList.toggle('py-4', scrolled);
+                navbar.classList.toggle('py-6', !scrolled);
+
+                const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (window.scrollY / totalHeight) * 100;
+                progress.style.width = scrollPercent + '%';
+            });
+
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            document.querySelectorAll('.mobile-link').forEach(link => {
+                link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+            });
+        }
+
+        // --- Hero ---
+        function initHero() {
+            const container = document.getElementById('hero-stages');
+            EVOLUTION_STAGES.forEach((stage, i) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center gap-8 group opacity-0 translate-y-5';
+                div.innerHTML = `
+                    <div class="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center bg-bg-deep z-10 group-hover:border-now transition-colors">
+                        <div class="w-3 h-3 rounded-full" style="background-color: ${stage.color}"></div>
+                    </div>
+                    <div>
+                        <span class="text-xs font-mono text-text-muted mb-1 block">${stage.year}</span>
+                        <h3 class="text-xl font-bold group-hover:text-now transition-colors">${stage.title}</h3>
+                        <p class="text-xs text-text-muted max-w-[200px]">${stage.subtitle}</p>
+                    </div>
+                `;
+                container.appendChild(div);
+                gsap.to(div, { opacity: 1, y: 0, delay: 0.5 + i * 0.2, duration: 0.8 });
+            });
+
+            const follower = document.getElementById('mouse-follower');
+            window.addEventListener('mousemove', (e) => {
+                gsap.to(follower, { x: e.clientX - 300, y: e.clientY - 300, duration: 0.5, ease: "power2.out" });
+            });
+        }
+
+        // --- Evolution ---
+        function initEvolution() {
+            const grid = document.getElementById('evolution-grid');
+            EVOLUTION_STAGES.forEach(stage => {
+                const div = document.createElement('div');
+                div.className = 'glass-card p-8 border-white/5 hover:border-white/20 transition-all hover:-translate-y-2';
+                div.innerHTML = `
+                    <div class="w-12 h-12 rounded-xl flex items-center justify-center mb-6" style="background-color: ${stage.color}20; border: 1px solid ${stage.color}40">
+                        <div class="w-4 h-4 rounded-full" style="background-color: ${stage.color}"></div>
+                    </div>
+                    <span class="text-xs font-mono text-text-muted mb-2 block">${stage.year}</span>
+                    <h3 class="text-2xl font-bold mb-4">${stage.title}</h3>
+                    <p class="text-sm text-text-muted mb-8 leading-relaxed">${stage.subtitle}</p>
+                    <div class="flex flex-wrap gap-2">
+                        ${stage.tags.map(tag => `<span class="px-3 py-1 bg-white/5 rounded-full text-[10px] font-bold uppercase tracking-wider text-text-muted">${tag}</span>`).join('')}
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+        }
+
+        // --- Work ---
+        let globalMode = 'THEN';
+        function initWork() {
+            const container = document.getElementById('work-cases-container');
+            const toggleThen = document.getElementById('global-toggle-then');
+            const toggleNow = document.getElementById('global-toggle-now');
+            const toggleBg = document.getElementById('global-toggle-bg');
+
+            function renderWork() {
+                container.innerHTML = '';
+                WORK_CASES.forEach(work => {
+                    const div = document.createElement('div');
+                    div.className = 'group relative';
+                    div.innerHTML = `
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-12 gap-8">
+                            <div class="relative">
+                                <div class="absolute -bottom-2 left-0 h-1 bg-now/30 rounded-full w-full"></div>
+                                <h3 class="text-4xl font-black tracking-tighter mb-1">${work.title}</h3>
+                                <p class="text-text-muted text-sm font-medium tracking-wide uppercase">${work.subtitle}</p>
+                            </div>
+                        </div>
+                        <div class="glass-card p-10 border-${globalMode === 'THEN' ? 'then/20' : 'now/30'} relative overflow-hidden">
+                            <div class="grid lg:grid-cols-12 gap-12">
+                                <div class="lg:col-span-7">
+                                    <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-${globalMode === 'THEN' ? 'then' : 'now'} mb-4 flex items-center gap-2">
+                                        <div class="w-1.5 h-1.5 bg-${globalMode === 'THEN' ? 'then' : 'now'} rounded-full"></div> 
+                                        ${globalMode === 'THEN' ? '场景还原' : 'AI 驱动流程'}
+                                    </h4>
+                                    <p class="text-2xl font-medium text-white/90 leading-snug mb-10">
+                                        "${globalMode === 'THEN' ? work.then.scenario : work.now.logic}"
+                                    </p>
+                                    <div class="grid md:grid-cols-2 gap-10">
+                                        <div>
+                                            <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-${globalMode === 'THEN' ? 'then' : 'now'} mb-4">
+                                                ${globalMode === 'THEN' ? '传统工作流' : '核心架构'}
+                                            </h4>
+                                            <div class="space-y-4">
+                                                ${(globalMode === 'THEN' ? work.then.workflow : work.now.workflow).map((step, i) => `
+                                                    <div class="flex gap-4 text-sm text-text-muted">
+                                                        <div class="w-4 h-4 rounded-full bg-bg-deep border border-${globalMode === 'THEN' ? 'then' : 'now'}/40 flex items-center justify-center text-[8px] font-mono text-${globalMode === 'THEN' ? 'then' : 'now'}">
+                                                            ${i + 1}
+                                                        </div>
+                                                        ${step}
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-${globalMode === 'THEN' ? 'then' : 'now'} mb-4">
+                                                ${globalMode === 'THEN' ? '痛点分析' : '效率飞跃'}
+                                            </h4>
+                                            ${globalMode === 'THEN' ? `
+                                                <div class="space-y-3">
+                                                    ${work.then.painPoints.map(point => `
+                                                        <div class="flex items-start gap-3 p-4 bg-white/5 rounded-xl border border-white/5">
+                                                            <i data-lucide="alert-circle" class="text-then w-4 h-4 mt-0.5"></i>
+                                                            <p class="text-xs text-text-muted leading-relaxed">${point}</p>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                            ` : `
+                                                <div class="p-6 bg-now/5 rounded-2xl border border-now/10">
+                                                    <div class="mb-4">
+                                                        <div class="flex justify-between text-[10px] text-text-muted mb-1"><span>手动耗时</span><span>${work.now.efficiency.then}</span></div>
+                                                        <div class="h-1.5 bg-white/5 rounded-full overflow-hidden"><div class="h-full bg-then/40 w-full"></div></div>
+                                                    </div>
+                                                    <div>
+                                                        <div class="flex justify-between text-[10px] text-now mb-1"><span>AI 耗时</span><span>${work.now.efficiency.now}</span></div>
+                                                        <div class="h-2 bg-now/10 rounded-full overflow-hidden border border-now/20"><div class="h-full bg-now w-[10%]"></div></div>
+                                                    </div>
+                                                </div>
+                                            `}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lg:col-span-5">
+                                    <div id="simulation-container-${work.id}" class="h-full min-h-[350px]">
+                                        <!-- Simulation will be injected here -->
+                                    </div>
+                                    <div class="mt-8 p-6 bg-white/5 rounded-2xl border border-white/5">
+                                        <h4 class="text-[10px] font-black uppercase tracking-[0.2em] text-${globalMode === 'THEN' ? 'then' : 'now'} mb-4">Insight</h4>
+                                        <p class="text-xs text-text-muted leading-relaxed">${globalMode === 'THEN' ? work.then.insight : work.now.insight}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(div);
+                    renderSimulation(work.id, globalMode);
+                });
+                lucide.createIcons();
+            }
+
+            function renderSimulation(id, mode) {
+                const container = document.getElementById(`simulation-container-${id}`);
+                if (!container) return;
+
+                if (mode === 'THEN') {
+                    container.innerHTML = `
+                        <div class="rounded-2xl overflow-hidden aspect-video relative border border-white/10 shadow-2xl h-full">
+                            <img src="${WORK_CASES.find(w => w.id === id).then.image}" class="w-full h-full object-cover opacity-80">
+                            <div class="absolute inset-0 bg-gradient-to-t from-bg-deep/90 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-4 left-4 flex items-center gap-3">
+                                <div class="w-2 h-2 bg-then rounded-full animate-pulse"></div>
+                                <span class="text-[10px] font-black text-white uppercase tracking-[0.3em]">Manual Era Archive</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    if (id === 'comp-monitor') {
+                        container.innerHTML = `
+                            <div class="w-full h-full bg-[#F3F2F1] rounded-lg overflow-hidden flex flex-col border border-gray-200 shadow-inner text-gray-800">
+                                <div class="h-6 bg-[#111] flex items-center px-2 justify-between">
+                                    <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-yellow-400"></div><span class="text-[8px] text-white">Power BI Desktop</span></div>
+                                </div>
+                                <div class="flex-1 p-3">
+                                    <div class="flex justify-between items-center mb-2"><h2 class="text-[10px] font-black">Price Index Dashboard</h2></div>
+                                    <div class="grid grid-cols-3 gap-2 mb-2">
+                                        <div class="bg-white p-2 rounded shadow-sm border border-gray-100"><p class="text-[6px] text-gray-400 uppercase font-bold">Total</p><p class="text-xs font-black">124</p></div>
+                                        <div class="bg-white p-2 rounded shadow-sm border border-gray-100"><p class="text-[6px] text-gray-400 uppercase font-bold">Avg</p><p class="text-xs font-black">0.92</p></div>
+                                        <div class="bg-white p-2 rounded shadow-sm border border-gray-100"><p class="text-[6px] text-gray-400 uppercase font-bold">Share</p><p class="text-xs font-black">18.4%</p></div>
+                                    </div>
+                                    <div class="bg-white p-2 rounded shadow-sm border border-gray-100 h-24"><canvas id="pbiChart"></canvas></div>
+                                </div>
+                            </div>
+                        `;
+                        setTimeout(() => {
+                            const ctx = document.getElementById('pbiChart').getContext('2d');
+                            new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
+                                    datasets: [{ data: [65, 59, 80, 81, 56, 55, 40], borderColor: '#F2C811', tension: 0.4, fill: true, backgroundColor: 'rgba(242, 200, 17, 0.1)' }]
+                                },
+                                options: { plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false } } }
+                            });
+                        }, 0);
+                    } else if (id === 'kol-audit') {
+                        container.innerHTML = `
+                            <div class="w-full h-full bg-[#0D0D0D] rounded-xl overflow-hidden flex flex-col border border-white/10 shadow-2xl font-mono p-4">
+                                <div class="flex items-center gap-2 mb-4">
+                                    <div class="flex gap-1"><div class="w-2 h-2 rounded-full bg-red-500"></div><div class="w-2 h-2 rounded-full bg-yellow-500"></div><div class="w-2 h-2 rounded-full bg-green-500"></div></div>
+                                    <span class="text-[8px] text-gray-500 uppercase">ai_audit_assistant.sh</span>
+                                </div>
+                                <div class="space-y-4 text-[10px]">
+                                    <div class="flex gap-2"><div class="w-6 h-6 rounded bg-white/5 flex items-center justify-center"><i data-lucide="user" class="w-3 h-3"></i></div><div class="bg-white/5 p-2 rounded-lg text-white/70">分析脚本卖点覆盖率。</div></div>
+                                    <div class="flex gap-2"><div class="w-6 h-6 rounded bg-now flex items-center justify-center"><i data-lucide="zap" class="w-3 h-3 text-bg-deep"></i></div><div class="bg-now/5 p-2 rounded-lg text-now">正在分析... 卖点覆盖率：92%</div></div>
+                                </div>
+                            </div>
+                        `;
+                        lucide.createIcons();
+                    }
+                }
+            }
+
+            toggleThen.addEventListener('click', () => {
+                globalMode = 'THEN';
+                toggleBg.style.left = '8px';
+                toggleBg.classList.replace('bg-now', 'bg-then');
+                toggleThen.classList.replace('text-text-muted', 'text-white');
+                toggleNow.classList.replace('text-bg-deep', 'text-text-muted');
+                renderWork();
+            });
+
+            toggleNow.addEventListener('click', () => {
+                globalMode = 'NOW';
+                toggleBg.style.left = 'calc(50% + 1px)';
+                toggleBg.classList.replace('bg-then', 'bg-now');
+                toggleThen.classList.replace('text-white', 'text-text-muted');
+                toggleNow.classList.replace('text-text-muted', 'text-bg-deep');
+                renderWork();
+            });
+
+            renderWork();
+        }
+
+        // --- Charts ---
+        function initCharts() {
+            const ctx = document.getElementById('skillRadarChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Manual MKT', 'AI Prompting', 'Data Analysis', 'Strategy', 'Efficiency'],
+                    datasets: [{
+                        label: 'Skills',
+                        data: [90, 85, 75, 80, 95],
+                        backgroundColor: 'rgba(196, 167, 125, 0.3)',
+                        borderColor: '#C4A77D',
+                        borderWidth: 2,
+                        pointBackgroundColor: '#C4A77D',
+                    }]
+                },
+                options: {
+                    scales: {
+                        r: {
+                            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                            pointLabels: { color: '#737373', font: { size: 10 } },
+                            ticks: { display: false, stepSize: 20 }
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // --- Back to Top ---
+        function initBackToTop() {
+            const btn = document.getElementById('back-to-top');
+            window.addEventListener('scroll', () => {
+                btn.classList.toggle('hidden', window.scrollY < 500);
+            });
+            btn.addEventListener('click', () => {
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+        }
+
+        // --- Utils ---
+        function copyToClipboard(text, label) {
+            navigator.clipboard.writeText(text).then(() => {
+                const el = document.getElementById(label + '-label');
+                const originalText = el.textContent;
+                el.textContent = '已复制';
+                setTimeout(() => el.textContent = originalText, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
